@@ -30,12 +30,73 @@ const getAllUser = async(req,res)=> {
 
 // here is pagination functionality
 
-const countUser = async(req,res)=> {
+const countAllUser = async (req, res) => {
+    try {
+        const countUser = await Users.estimatedDocumentCount().exec();
+        console.log('here is count', countUser);
+        res.status(200).json({
+            countUser
+        });
+    } catch (error) {
+        res.status(500).json({
+            error
+        });
+    }
+};
+
+const userSearchByName = async(req,res)=> {
+    try {
+        const { name } = req.params;
+
+        if (!name) {
+            return res.status(400).json({ error: "Name parameter is required for search." });
+        }
+
+        const result = await Users.find({
+            $or: [
+                { first_name: { $regex: new RegExp(name, "i") } },
+                { last_name: { $regex: new RegExp(name, "i") } }
+            ]
+        });
+
+        res.status(200).json({ result });
+    } catch (error) {
+        res.status(500).json({ error });
+    }
+}
+
+
+const filterUser = async(req,res)=> {
+
+    try {
+        const domain = req.params.domain;
+    
+        
+        const result = await Users.find({ domain: domain });
+    
+        // Check if there are users with the specified domain
+        if (result.length > 0) {
+          res.json({ success: true, data: result });
+        } else {
+          res.json({ success: false, message: 'No users found with the specified domain.' });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+      }
 
 }
+
+
+
+
+
 
 module.exports = {
     createUser,
     getAllUser,
-    countUser
+    countAllUser,
+    userSearchByName,
+    filterUser,
+   
 }

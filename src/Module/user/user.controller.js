@@ -44,6 +44,28 @@ const countAllUser = async (req, res) => {
     }
 };
 
+// delete a User 
+
+const deleteUser = async(req,res)=> {
+    try {
+        const   userId = req.params.id 
+        const deletedUser = await Users.findOneAndDelete({_id : userId})
+ 
+        if (deletedUser) {
+            res.status(200).json({ message: 'User deleted successfully', user: deletedUser });
+          } else {
+            res.status(404).json({ message: 'User not found' });
+          }
+ 
+    } catch (error) {
+        console.error(error);
+    res.status(500).json({ error: 'Internal server error' })
+    }
+}
+
+
+
+
 const userSearchByName = async(req,res)=> {
     try {
         const { name } = req.params;
@@ -98,5 +120,6 @@ module.exports = {
     countAllUser,
     userSearchByName,
     filterUser,
+    deleteUser
    
 }

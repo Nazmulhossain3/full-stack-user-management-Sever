@@ -17,7 +17,12 @@ const createUser = async(req,res)=> {
 
 const getAllUser = async(req,res)=> {
     try {
-        const result = await Users.find()
+
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 20
+        const skip = page * limit
+
+        const result = await Users.find().skip(skip).limit(limit)
         res.status(200).json({
             result
         })
@@ -63,6 +68,25 @@ const deleteUser = async(req,res)=> {
     }
 }
 
+
+// here is update user  functionality
+
+const updateUser = async(req,res)=> {
+    try {
+        const userId = req.params.id 
+        const updatedUserData = req.body
+        const updatedUser = await Users.findOneAndUpdate({_id : userId},updatedUserData,{new : true})
+
+        if (updatedUser) {
+            res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+          } else {
+            res.status(404).json({ message: 'User not found' });
+          }
+    } catch (error) {
+        console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+    }
+}
 
 
 
@@ -120,6 +144,7 @@ module.exports = {
     countAllUser,
     userSearchByName,
     filterUser,
-    deleteUser
+    deleteUser,
+    updateUser
    
 }
